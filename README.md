@@ -3,7 +3,7 @@ A virtual Wazuh SIEM homelab with Ubuntu OS as the manager, and a LinuxMint mach
 
 This is all setup and run locally on my machine using VMs.
 
-The goal is to have an environment where I can test different types of cyberattacks and analyze what is logged by the SIEM.
+The goal is to have an environment where I can test different types of cyberattacks and analyze what is logged by the SIEM, but for now, I just automated the process of malware removal in specific directories.
 
 ## Infrastructure
 - NAT Network: 192.168.0.X/24 with Static IP allocation to ensure consistent connectivity.
@@ -33,10 +33,46 @@ In the LinuxMint machine, I configured it to look in a directory I created in tm
 - Integrated the FIM module with the VirusTotal API. File hashes are cross-checked with VirusTotal's database and alerts when a known malware signature is detected.
 
 This snippet is located in the 'ossec.conf' file of the Wazuh Manager (Ubuntu Machine):
+<img width="853" height="191" alt="Screenshot 2026-01-18 011858" src="https://github.com/user-attachments/assets/28bf3479-69c7-4690-9b4a-a401d605ebc8" />
 
-3. Active Response
+3. Active Response (on LinuxMint)
 - Now the Wazuh manager raises alerts when malware is detected in a directory, there is no reason to keep them in the system for longer than they should be.
 - This process automatically deletes any known malware detected.
+
+A 'remove-threat.sh' script was created in the 'active-response' directory of the LinuxMint machine:
+<img width="848" height="104" alt="image" src="https://github.com/user-attachments/assets/756d2dc9-1640-4f79-aba3-382f091f92cf" />
+
+The script itself is provided in the [Official Wazuh Documentation](https://documentation.wazuh.com/current/proof-of-concept-guide/detect-remove-malware-virustotal.html):
+<img width="950" height="670" alt="image" src="https://github.com/user-attachments/assets/458fa3f0-063a-4418-9262-c21cfad4d038" />
+
+This snippet is found in the 'ossec.conf' file of the Wazuh Manager machine, inferring the 'remove-threat.sh' script when a file with rule_id=87105 is found, meaning that it's guaranteed malware:
+<img width="633" height="374" alt="image" src="https://github.com/user-attachments/assets/30d7c61a-d2e1-493c-9f90-2b56bff072ed" />
+
+## Demonstration
+- In the 'tmp/wazuhTest/' directory in the LinuxMint machine, I created a text file that just says "hello":
+<img width="515" height="39" alt="image" src="https://github.com/user-attachments/assets/e8d48636-1d91-4677-a6f3-869a1b713f52" />
+
+- This is what's shown in the Wazuh dashboard in the Ubuntu machine, showing that the file I created was harmless:
+<img width="1839" height="505" alt="image" src="https://github.com/user-attachments/assets/13d17e0b-6580-4dc0-9d9e-5ed1124f1b35" />
+
+- I can also see what I wrote in the text file:
+<img width="483" height="83" alt="image" src="https://github.com/user-attachments/assets/c3222b8f-c0e6-42fd-be29-eeea3e1af84a" />
+
+- To test with an actual malware, I will download a sample from EICAR into the wazuhTest directory in the LinuxMint machine, which isn't actually malware, but will trigger the VirusTotal detection and subsequently the auto-deletion:
+<img width="796" height="566" alt="image" src="https://github.com/user-attachments/assets/bbf4e462-9e45-4a91-980b-0998c1177083" />
+<img width="946" height="90" alt="image" src="https://github.com/user-attachments/assets/cdad2545-4dd8-4a9f-831d-54671dde38ba" />
+<img width="803" height="567" alt="image" src="https://github.com/user-attachments/assets/17971163-f65d-4baa-8649-aae8f185df44" />
+
+
+
+
+
+
+
+
+
+
+
 
 
 
