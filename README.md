@@ -1,4 +1,4 @@
-<img width="599" height="539" alt="image" src="https://github.com/user-attachments/assets/a2929374-b8e2-4a24-8d56-43826a2442f8" /># SoC-Wazuh-Homelab
+# SoC-Wazuh-Homelab
 A virtual Wazuh SIEM homelab with Ubuntu OS as the manager, and a LinuxMint machine and a Windows machine as the agents. Integrated with VirusTotal API to automatically detect malicious files and deployed a script to delete said files.
 
 This is all setup and run locally on my machine using VMs.
