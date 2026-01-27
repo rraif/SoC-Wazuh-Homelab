@@ -18,7 +18,7 @@ The goal is to have an environment where I can test different types of cyberatta
 <img width="824" height="814" alt="image" src="https://github.com/user-attachments/assets/16c7c7df-5f27-4084-a594-67f0fdb32b6a" />
 
 ## Implementations
-1. Log Aggregation and File Integrity Monitoring (FIM)
+### 1. Log Aggregation and File Integrity Monitoring (FIM)
 - The Wazuh Agents are deployed on the Windows and LinuxMint endpoints to collect system events.
 - The 'ossec.conf' files were configured manually to collect real-time telemetry in a directory and forward it to the Wazuh Manager, this is File Integrity Monitoring:
   
@@ -37,14 +37,14 @@ In the LinuxMint machine, I configured it to look in a directory I created in tm
 - I can also see what I wrote in the text file:
 <img width="483" height="83" alt="image" src="https://github.com/user-attachments/assets/c3222b8f-c0e6-42fd-be29-eeea3e1af84a" />
 
-2. Malware Detection with VirusTotal API
+### 2. Malware Detection with VirusTotal API
 - Just having Wazuh provide logs about changes in a directory isn't enough, so I wanted a way for it to detect when malware was added to the system.
 - Integrated the FIM module with the VirusTotal API. File hashes are cross-checked with VirusTotal's database and alerts when a known malware signature is detected.
 
 This snippet is located in the 'ossec.conf' file of the Wazuh Manager (Ubuntu Machine):
 <img width="853" height="191" alt="Screenshot 2026-01-18 011858" src="https://github.com/user-attachments/assets/28bf3479-69c7-4690-9b4a-a401d605ebc8" />
 
-3. Active Response (on LinuxMint)
+### 3. Active Response (on LinuxMint)
 - Now the Wazuh manager raises alerts when malware is detected in a directory, there is no reason to keep them in the system for longer than they should be.
 - This process automatically deletes any known malware detected.
 
@@ -62,7 +62,7 @@ To test with an actual malware, I will download a sample from EICAR into the waz
 <img width="946" height="90" alt="image" src="https://github.com/user-attachments/assets/cdad2545-4dd8-4a9f-831d-54671dde38ba" />
 <img width="803" height="567" alt="image" src="https://github.com/user-attachments/assets/17971163-f65d-4baa-8649-aae8f185df44" />
 
-4. Custom Rule Detection (sudo commands)
+### 4. Custom Rule Detection (sudo commands)
 Right after setting up Wazuh, I realized that a lot of events were classified as low severity, even when running a command like 'sudo bash' on my LinuxMint machine to perform privilege escalation.
 <img width="598" height="380" alt="image" src="https://github.com/user-attachments/assets/8932974d-6374-4855-a7f3-2a79a572d610" />
 <img width="595" height="676" alt="image" src="https://github.com/user-attachments/assets/4562a3fd-629d-4fe1-b573-3a67a6725425" />
