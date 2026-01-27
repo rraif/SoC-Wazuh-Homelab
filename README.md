@@ -1,4 +1,4 @@
-# SoC-Wazuh-Homelab
+<img width="599" height="539" alt="image" src="https://github.com/user-attachments/assets/a2929374-b8e2-4a24-8d56-43826a2442f8" /># SoC-Wazuh-Homelab
 A virtual Wazuh SIEM homelab with Ubuntu OS as the manager, and a LinuxMint machine and a Windows machine as the agents. Integrated with VirusTotal API to automatically detect malicious files and deployed a script to delete said files.
 
 This is all setup and run locally on my machine using VMs.
@@ -28,6 +28,15 @@ In the Windows machine, I configured it to look in the Public directory:
 In the LinuxMint machine, I configured it to look in a directory I created in tmp/wazuhTest:
 <img width="822" height="254" alt="image" src="https://github.com/user-attachments/assets/50d2d0ed-9afb-4ea3-b6bb-58c37b9b1281" />
 
+- In the 'tmp/wazuhTest/' directory in the LinuxMint machine, I created a text file that just says "hello":
+<img width="515" height="39" alt="image" src="https://github.com/user-attachments/assets/e8d48636-1d91-4677-a6f3-869a1b713f52" />
+
+- This is what's shown in the Wazuh dashboard in the Ubuntu machine, showing that the file I created was harmless:
+<img width="1839" height="505" alt="image" src="https://github.com/user-attachments/assets/13d17e0b-6580-4dc0-9d9e-5ed1124f1b35" />
+
+- I can also see what I wrote in the text file:
+<img width="483" height="83" alt="image" src="https://github.com/user-attachments/assets/c3222b8f-c0e6-42fd-be29-eeea3e1af84a" />
+
 2. Malware Detection with VirusTotal API
 - Just having Wazuh provide logs about changes in a directory isn't enough, so I wanted a way for it to detect when malware was added to the system.
 - Integrated the FIM module with the VirusTotal API. File hashes are cross-checked with VirusTotal's database and alerts when a known malware signature is detected.
@@ -48,20 +57,37 @@ The script itself is provided in the [Official Wazuh Documentation](https://docu
 This snippet is found in the 'ossec.conf' file of the Wazuh Manager machine, inferring the 'remove-threat.sh' script when a file with rule_id=87105 is found, meaning that it's guaranteed malware:
 <img width="633" height="374" alt="image" src="https://github.com/user-attachments/assets/30d7c61a-d2e1-493c-9f90-2b56bff072ed" />
 
-## Demonstration
-- In the 'tmp/wazuhTest/' directory in the LinuxMint machine, I created a text file that just says "hello":
-<img width="515" height="39" alt="image" src="https://github.com/user-attachments/assets/e8d48636-1d91-4677-a6f3-869a1b713f52" />
-
-- This is what's shown in the Wazuh dashboard in the Ubuntu machine, showing that the file I created was harmless:
-<img width="1839" height="505" alt="image" src="https://github.com/user-attachments/assets/13d17e0b-6580-4dc0-9d9e-5ed1124f1b35" />
-
-- I can also see what I wrote in the text file:
-<img width="483" height="83" alt="image" src="https://github.com/user-attachments/assets/c3222b8f-c0e6-42fd-be29-eeea3e1af84a" />
-
-- To test with an actual malware, I will download a sample from EICAR into the wazuhTest directory in the LinuxMint machine, which isn't actually malware, but will trigger the VirusTotal detection and subsequently the auto-deletion:
+To test with an actual malware, I will download a sample from EICAR into the wazuhTest directory in the LinuxMint machine, which isn't actually malware, but will trigger the VirusTotal detection and subsequently the auto-deletion:
 <img width="796" height="566" alt="image" src="https://github.com/user-attachments/assets/bbf4e462-9e45-4a91-980b-0998c1177083" />
 <img width="946" height="90" alt="image" src="https://github.com/user-attachments/assets/cdad2545-4dd8-4a9f-831d-54671dde38ba" />
 <img width="803" height="567" alt="image" src="https://github.com/user-attachments/assets/17971163-f65d-4baa-8649-aae8f185df44" />
+
+4. Custom Rule Detection (sudo commands)
+Right after setting up Wazuh, I realized that a lot of events were classified as low severity, even when running a command like 'sudo bash' on my LinuxMint machine to perform privilege escalation.
+<img width="598" height="380" alt="image" src="https://github.com/user-attachments/assets/8932974d-6374-4855-a7f3-2a79a572d610" />
+<img width="595" height="676" alt="image" src="https://github.com/user-attachments/assets/4562a3fd-629d-4fe1-b573-3a67a6725425" />
+
+So I wanted to create a custom rule that puts sudo commands high on the severity list. 
+
+First things first, I examined the logs to find which one was for the sudo command I ran. 
+<img width="695" height="763" alt="image" src="https://github.com/user-attachments/assets/c446a5eb-fd48-49f7-91bb-2e3ff9420966" />
+<img width="599" height="539" alt="image" src="https://github.com/user-attachments/assets/f4ce9b0f-f6f1-40e0-94b2-5a10fbada008" />
+
+A couple things to take note here:
+- The current Rule Level, which is 3, putting it low on the severity scale
+- The Rule ID, which is the unique identifier for this kind of event (running sudo command)
+
+Within the Wazuh Manager machine, I went into the 'local_rules.xml' file and added a rule to put sudo command events on Rule Level 12, which high severity.
+(i am aware of the typo, i meant to write 'custom' instead of 'custon', but I live with my sins)
+<img width="600" height="425" alt="image" src="https://github.com/user-attachments/assets/c603ab51-cef5-4d9a-a3bc-245b6518ab16" />
+
+After restarting the Wazuh Manager, I ran 'sudo bash' on my linux machine again, and what do you know, I immediately see 1 High Alert event recorded, and I can easily examine it. 
+<img width="598" height="640" alt="image" src="https://github.com/user-attachments/assets/3501e176-dedb-4975-9ed8-65f39f804c17" />
+<img width="598" height="695" alt="image" src="https://github.com/user-attachments/assets/65aa5376-3ebc-4a8f-a176-a4282ec19121" />
+
+
+
+
 
 
 
