@@ -64,12 +64,14 @@ To test with an actual malware, I will download a sample from EICAR into the waz
 
 ### 4. Custom Rule Detection (sudo commands)
 Right after setting up Wazuh, I realized that a lot of events were classified as low severity, even when running a command like 'sudo bash' on my LinuxMint machine to perform privilege escalation.
+
 <img width="598" height="380" alt="image" src="https://github.com/user-attachments/assets/8932974d-6374-4855-a7f3-2a79a572d610" />
 <img width="595" height="676" alt="image" src="https://github.com/user-attachments/assets/4562a3fd-629d-4fe1-b573-3a67a6725425" />
 
 So I wanted to create a custom rule that puts sudo commands high on the severity list. 
 
 First things first, I examined the logs to find which one was for the sudo command I ran. 
+
 <img width="695" height="763" alt="image" src="https://github.com/user-attachments/assets/c446a5eb-fd48-49f7-91bb-2e3ff9420966" />
 <img width="599" height="539" alt="image" src="https://github.com/user-attachments/assets/f4ce9b0f-f6f1-40e0-94b2-5a10fbada008" />
 
@@ -79,9 +81,11 @@ A couple things to take note here:
 
 Within the Wazuh Manager machine, I went into the 'local_rules.xml' file and added a rule to put sudo command events on Rule Level 12, which high severity.
 (i am aware of the typo, i meant to write 'custom' instead of 'custon', but I live with my sins)
+
 <img width="600" height="425" alt="image" src="https://github.com/user-attachments/assets/c603ab51-cef5-4d9a-a3bc-245b6518ab16" />
 
 After restarting the Wazuh Manager, I ran 'sudo bash' on my linux machine again, and what do you know, I immediately see 1 High Alert event recorded, and I can easily examine it. 
+
 <img width="598" height="640" alt="image" src="https://github.com/user-attachments/assets/3501e176-dedb-4975-9ed8-65f39f804c17" />
 <img width="598" height="695" alt="image" src="https://github.com/user-attachments/assets/65aa5376-3ebc-4a8f-a176-a4282ec19121" />
 
