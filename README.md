@@ -3,7 +3,7 @@ A virtual Wazuh SIEM homelab with Ubuntu OS as the manager, and a LinuxMint mach
 
 This is all setup and run locally on my machine using VMs.
 
-The goal is to have an environment where I can test different types of cyberattacks and analyze what is logged by the SIEM, but for now, I just automated the process of malware removal in specific directories.
+The goal is to have an environment where I can test different types of cyberattacks and analyze what is logged by the SIEM.
 
 ## Infrastructure
 - NAT Network: 192.168.0.X/24 with Static IP allocation to ensure consistent connectivity.
@@ -89,13 +89,48 @@ After restarting the Wazuh Manager, I ran 'sudo bash' on my linux machine again,
 <img width="598" height="640" alt="image" src="https://github.com/user-attachments/assets/3501e176-dedb-4975-9ed8-65f39f804c17" />
 <img width="598" height="695" alt="image" src="https://github.com/user-attachments/assets/65aa5376-3ebc-4a8f-a176-a4282ec19121" />
 
+## Attacks
+### 1. SSH Brute Force using Kali Linux and Hydra
 
+Here I attempted an SSH brute force attack on my LinuxMint machine (192.168.0.9) using Kali Linux and Hydra. 
 
+Scanning the services on the target machine I can see that port 22 is open. 
+<img width="624" height="158" alt="image" src="https://github.com/user-attachments/assets/51e74a46-67f6-427b-8206-90f1d7a72598" />
 
+Kali Linux comes with a .txt file called rockyou that contains a very extensive list of passwords
+<img width="568" height="108" alt="image" src="https://github.com/user-attachments/assets/8871c61c-324a-4b9c-8a92-9bce9ef5d7c0" />
 
+I ran this command in the Kali Linux terminal to perform an SSH brute force attack to my target LinuxMint machine to login
+to the root user.
+`hydra -l root -P /usr/share/wordlists/rockyou.txt ssh://192.168.0.9 -t 4`
 
+What this does is brute force login to the root user of the LinuxMint machine using every passwords stored in the .txt file. 
 
+Looking at my Wazuh dashboard, I can see that events in the Medium and Low severity scale are increasing rapidly. 
+<img width="625" height="382" alt="image" src="https://github.com/user-attachments/assets/d0661666-ff35-49f1-b69b-3036960ef55f" />
+<img width="623" height="423" alt="image" src="https://github.com/user-attachments/assets/525ae247-2ca7-4fc4-aec8-4012ac37fcb9" />
 
+A sudden spike of events have suddenly appeared in my Wazuh dashboard, with the source coming from the LinuxMint machine. A lot of these alerts (possibly hundreds) are Level 5 on the severity scale, and have a rule id of 5760, which only indicates that someone or something inputted an incorrect password. This is hard to scroll through.
+
+<img width="610" height="713" alt="image" src="https://github.com/user-attachments/assets/ea2c29a4-d3cf-410f-bc6a-21d702b89cd7" />
+
+From the perspective of an analyst, how do we actually know whether this is an actual brute force attack or just someone who cannot remember their password? The hundreds of alerts could signal bot-driven behavior, but we want confirmation. 
+
+Doing some research (a google search), we can see that the Wazuh rule id for an SSH-brute force attempt is 5763. 
+
+<img width="624" height="286" alt="image" src="https://github.com/user-attachments/assets/4b3f0a48-bb6b-43bf-af08-51d06d2546d5" />
+
+Now I'm gonna filter my logs for rule 5763 specifically.
+
+<img width="618" height="518" alt="image" src="https://github.com/user-attachments/assets/df17fe0a-f00a-446f-a24b-ec30ea701ab5" />
+
+Now I can confirm that this is a brute force attack
+
+<img width="616" height="419" alt="image" src="https://github.com/user-attachments/assets/5b885147-7c07-43b7-aa8f-c9f06da383c3" />
+
+I can even see further details, such as the attacker trying to log into the root user in the LinuxMint machine.
+
+<img width="623" height="266" alt="image" src="https://github.com/user-attachments/assets/78f07900-9e5b-460f-b349-26613b985535" />
 
 
 
