@@ -116,7 +116,7 @@ A sudden spike of events have suddenly appeared in my Wazuh dashboard, with the 
 
 From the perspective of an analyst, how do we actually know whether this is an actual brute force attack or just someone who cannot remember their password? The hundreds of alerts could signal bot-driven behavior, but we want confirmation. 
 
-Doing some research (a google search), we can see that the Wazuh rule id for an SSH-brute force attempt is 5763. 
+To filter through this noise, I searched for the rule id which triggers only when multiple failures occur for the same user within a short window, and landed on rule id 5763
 
 <img width="624" height="286" alt="image" src="https://github.com/user-attachments/assets/4b3f0a48-bb6b-43bf-af08-51d06d2546d5" />
 
@@ -124,13 +124,15 @@ Now I'm gonna filter my logs for rule 5763 specifically.
 
 <img width="618" height="518" alt="image" src="https://github.com/user-attachments/assets/df17fe0a-f00a-446f-a24b-ec30ea701ab5" />
 
-Now I can confirm that this is a brute force attack
+Now I can confirm that this is a brute force attack.
 
 <img width="616" height="419" alt="image" src="https://github.com/user-attachments/assets/5b885147-7c07-43b7-aa8f-c9f06da383c3" />
 
-I can even see further details, such as the attacker trying to log into the root user in the LinuxMint machine.
+I can even see further details, such as the attacker trying to log into the root user in the LinuxMint machine, looking at the timestamps show the attacker attempting to enter passwords multiple times under a second, further supporting the fact that this is a bot-driven brute force attack.
 
 <img width="623" height="266" alt="image" src="https://github.com/user-attachments/assets/78f07900-9e5b-460f-b349-26613b985535" />
+
+
 
 
 
